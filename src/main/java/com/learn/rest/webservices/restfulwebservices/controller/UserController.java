@@ -4,6 +4,8 @@ import com.learn.rest.webservices.restfulwebservices.service.UserService;
 import com.learn.rest.webservices.restfulwebservices.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable("id") Integer userId) {
-        return userService.getUser(userId);
+    public EntityModel<User> getUser(@PathVariable("id") Integer userId) {
+        User user = userService.getUser(userId);
+        EntityModel<User> userEntityModel = EntityModel.of(user);
+        WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllUsers());
+        userEntityModel.add(linkBuilder.withRel("all-users"));
+        return userEntityModel;
     }
 
     @PostMapping("/users")
@@ -36,7 +42,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public void deleteById(@PathVariable("id") Integer userId){
+    public void deleteById(@PathVariable("id") Integer userId) {
         userService.deleteById(userId);
     }
 }
