@@ -1,8 +1,10 @@
 package com.learn.rest.webservices.restfulwebservices.controller;
 
+import com.learn.rest.webservices.restfulwebservices.repository.PostRepository;
 import com.learn.rest.webservices.restfulwebservices.repository.UserRepository;
 import com.learn.rest.webservices.restfulwebservices.service.UserService;
 import com.learn.rest.webservices.restfulwebservices.service.UserServiceJPA;
+import com.learn.rest.webservices.restfulwebservices.user.Post;
 import com.learn.rest.webservices.restfulwebservices.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class UserControllerJPA {
 
     @Autowired
     private UserServiceJPA userServiceJPA;
+
+    @Autowired
+    private PostRepository postRepository;
 
     @GetMapping("/jpa/users")
     public List<User> getAllUsers() {
@@ -45,5 +50,18 @@ public class UserControllerJPA {
     @DeleteMapping("/jpa/users/{id}")
     public void deleteById(@PathVariable("id") Integer userId) {
         userServiceJPA.deleteById(userId);
+    }
+
+    @GetMapping("/jpa/users/{id}/posts")
+    public List<Post> getPosts(@PathVariable("id") Integer userId) {
+        User user = userServiceJPA.getUser(userId);
+        return user.getPosts();
+    }
+
+    @PostMapping("/jpa/users/{id}/posts")
+    public void saveUserPost(@PathVariable("id") Integer userId,@Valid @RequestBody Post post){
+        User user = userServiceJPA.getUser(userId);
+        post.setUser(user);
+        postRepository.save(post);
     }
 }
